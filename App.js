@@ -2,7 +2,8 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Image } from "react-native";
 import { useEffect, useState } from "react";
 
-import { SafeAreaView, FlatList } from "react-native";
+import { FlatList } from "react-native";
+import StyledText from "./components/StyledText";
 
 // make a react component
 const Card = (c) => {
@@ -16,7 +17,7 @@ const Card = (c) => {
 				}}
 			/>
 			<View style={styles.cardContent}>
-				<Text>{c.name.common}</Text>
+				<StyledText>{c.name.common}</StyledText>
 			</View>
 		</View>
 	);
@@ -25,29 +26,41 @@ const Card = (c) => {
 export default function App() {
 	const [countries, setCountries] = useState([]);
 
-	const fetchCountries = async () => {
-		const response = await fetch("https://restcountries.com/v3.1/all");
-		const data = await response.json();
-		// console.log(data[0]);
-		setCountries(data);
-	};
 
-	useEffect(() => {
-		fetchCountries();
-	}, []);
+
+  	const fetchCountries = async () => {
+			const response = await fetch("https://restcountries.com/v3.1/all");
+			const data = await response.json();
+			// console.log(data[0]);
+			setCountries(data);
+		};
+
+
+  	useEffect(() => {
+			fetchCountries();
+		}, []);
+
+  
+
+
+
 
 	const renderItem = ({ item }) => <Card {...item} />;
 
 	return (
-		<SafeAreaView style={styles.container}>
-			<Text style={styles.header}>REST COUNTRIES</Text>
+		<View style={styles.container}>
+			<View style={styles.header}>
+				<StyledText>
+					<Text style={styles.headerText}>REST COUNTRIES</Text>
+				</StyledText>
+			</View>
 			<FlatList
 				data={countries}
 				renderItem={renderItem}
 				keyExtractor={(item) => item.cca3}
 			/>
 			<StatusBar style="auto" />
-		</SafeAreaView>
+		</View>
 	);
 }
 
@@ -59,13 +72,22 @@ const styles = StyleSheet.create({
 		// justifyContent: "center",
 		padding: 20,
 	},
-	header: {
+
+  header: {
+    // backgroundColor: "#f4511e",
+    textAlign: "center",
+    paddingTop: 20,
+    display: "flex",
+    alignItems: "center",
+    // marginBottom: 20,
+  },
+	headerText: {
 		fontSize: 30,
 		fontWeight: "bold",
 		// color: "blue",
 		// marginBottom: 10,
-		marginTop: 20,
-		textAlign: "center",
+		// marginTop: 20,
+		// textAlign: "center",
 	},
 	flag: {
 		width: "100%",
@@ -84,5 +106,7 @@ const styles = StyleSheet.create({
 	},
 	cardContent: {
 		padding: 10,
+		// fontFamily: "DMSans_400Regular",
+		fontFamily: "monospace",
 	},
 });
