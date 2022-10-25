@@ -1,66 +1,88 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Image } from "react-native";
+import { StyleSheet, Text, View, Image, TouchableOpacity, ScrollView } from "react-native";
 import { useEffect, useState } from "react";
 
 import { FlatList } from "react-native";
 import StyledText from "./components/StyledText";
+// import { useFonts, DMSans_400Regular } from "@expo-google-fonts/dm-sans";
 
-// make a react component
-const Card = (c) => {
-	return (
-		<View style={styles.card}>
-			{/* <Text>{c.flag}</Text> */}
-			<Image
-				style={styles.flag}
-				source={{
-					uri: c.flags.png,
-				}}
-			/>
-			<View style={styles.cardContent}>
-				<StyledText>{c.name.common}</StyledText>
-			</View>
-		</View>
-	);
-};
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-export default function App() {
+// r
+function HomeScreen({ navigation }) {
 	const [countries, setCountries] = useState([]);
 
-
-
-  	const fetchCountries = async () => {
-			const response = await fetch("https://restcountries.com/v3.1/all");
-			const data = await response.json();
-			// console.log(data[0]);
-			setCountries(data);
-		};
-
-
-  	useEffect(() => {
-			fetchCountries();
-		}, []);
-
-  
-
-
-
-
-	const renderItem = ({ item }) => <Card {...item} />;
+	useEffect(() => {
+		fetch("https://restcountries.com/v3.1/all")
+			.then((res) => res.json())
+			.then((data) => {
+				setCountries(data);
+			});
+	}, []);
 
 	return (
 		<View style={styles.container}>
-			<View style={styles.header}>
-				<StyledText>
-					<Text style={styles.headerText}>REST COUNTRIES</Text>
-				</StyledText>
-			</View>
 			<FlatList
 				data={countries}
-				renderItem={renderItem}
+				renderItem={({ item }) => (
+					<TouchableOpacity
+						style={styles.card}
+						onPress={() => navigation.navigate("Details",{
+							details: item
+						})}
+					>
+						{/* {console.log(item[0])} */}
+						<Image
+							style={styles.flag}
+							source={{
+								uri: item.flags.png,
+							}}
+						/>
+						<View style={styles.cardContent}>
+							<StyledText>{item.name.common}</StyledText>
+						</View>
+					</TouchableOpacity>
+				)}
 				keyExtractor={(item) => item.cca3}
 			/>
+
 			<StatusBar style="auto" />
 		</View>
+	);
+}
+
+function DetailsScreen({route, navigation}) {
+
+	const {details} = route.params;
+
+	// set the title of the screen as the name of the country
+	useEffect(() => {
+		navigation.setOptions({ title: details.name.common });
+	}, []);
+	
+
+
+	return (
+		<View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+			<ScrollView>
+
+			<Text>{JSON.stringify(details)}</Text>
+			</ScrollView>
+		</View>
+	);
+}
+
+export default function App() {
+	const Stack = createNativeStackNavigator();
+
+	return (
+		<NavigationContainer>
+			<Stack.Navigator initialRouteName="Home">
+				<Stack.Screen name="Home" component={HomeScreen} />
+				<Stack.Screen name="Details" component={DetailsScreen} />
+			</Stack.Navigator>
+		</NavigationContainer>
 	);
 }
 
@@ -73,14 +95,14 @@ const styles = StyleSheet.create({
 		padding: 20,
 	},
 
-  header: {
-    // backgroundColor: "#f4511e",
-    textAlign: "center",
-    paddingTop: 20,
-    display: "flex",
-    alignItems: "center",
-    // marginBottom: 20,
-  },
+	header: {
+		// backgroundColor: "#f4511e",
+		textAlign: "center",
+		paddingTop: 20,
+		display: "flex",
+		alignItems: "center",
+		// marginBottom: 20,
+	},
 	headerText: {
 		fontSize: 30,
 		fontWeight: "bold",
